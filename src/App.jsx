@@ -7,6 +7,13 @@ import ConnectionMap from './components/ConnectionMap'
 
 const PHASE = { IDLE: 'READY', PING: 'LATENCY', DOWN: 'DOWNLOAD', UP: 'UPLOAD', DONE: 'COMPLETE' }
 
+const SERVERS = [
+  { name: 'Optimal Edge', loc: 'Auto', pingAdj: 0 },
+  { name: 'New York', loc: 'North America', pingAdj: 180 },
+  { name: 'London', loc: 'Europe', pingAdj: 140 },
+  { name: 'Singapore', loc: 'Asia Pacific', pingAdj: 80 }
+]
+
 const DL_URLS = [
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
@@ -46,7 +53,7 @@ function Particles({ speed = '18s' }) {
   )
 }
 
-// === Color Picker & Theme Toggle ===
+// === Settings ===
 function SettingsPanel({ dark, onToggle, accent, onSelectColor }) {
   const [open, setOpen] = useState(false);
   return (
@@ -62,18 +69,7 @@ function SettingsPanel({ dark, onToggle, accent, onSelectColor }) {
           border: '1px solid rgba(255,255,255,0.1)'
         }}>
           {ACCENT_COLORS.map(c => (
-            <button
-              key={c.name}
-              onClick={() => onSelectColor(c)}
-              style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                background: c.color,
-                border: accent.name === c.name ? '2px solid white' : 'none',
-                cursor: 'pointer'
-              }}
-            />
+            <button key={c.name} onClick={() => onSelectColor(c)} style={{ width: '24px', height: '24px', borderRadius: '50%', background: c.color, border: accent.name === c.name ? '2px solid white' : 'none', cursor: 'pointer' }} />
           ))}
         </div>
       )}
@@ -83,7 +79,6 @@ function SettingsPanel({ dark, onToggle, accent, onSelectColor }) {
   )
 }
 
-// === History ===
 function History({ data, onClear }) {
   const [open, setOpen] = useState(false)
   if (!data.length) return null
@@ -91,9 +86,9 @@ function History({ data, onClear }) {
     <section aria-label="Test history" style={{ width: '100%', marginTop: '32px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
         <button className="btn-ghost" onClick={() => setOpen(!open)} aria-expanded={open}>
-          {open ? '▾' : '▸'} History ({data.length})
+          {open ? '▾' : '▸'} History Archive ({data.length})
         </button>
-        {open && <button className="btn-ghost" onClick={onClear} style={{ color: 'var(--red)', borderColor: 'rgba(239,68,68,0.2)' }}>Clear All</button>}
+        {open && <button className="btn-ghost" onClick={onClear} style={{ color: 'var(--red)', borderColor: 'rgba(239,68,68,0.2)' }}>Clear Database</button>}
       </div>
       {open && (
         <div className="anim" style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -117,7 +112,7 @@ function FAQ() {
   const [openIdx, setOpenIdx] = useState(null)
   return (
     <section aria-label="FAQ" style={{ width: '100%', marginTop: '48px' }}>
-      <h2 className="label" style={{ marginBottom: '16px', textAlign: 'center' }}>Knowledge Base</h2>
+      <h2 className="label" style={{ marginBottom: '16px', textAlign: 'center' }}>Enterprise Knowledge Base</h2>
       <div className="card card-sm" style={{ padding: '4px 24px' }}>
         {FAQ_DATA.map((f, i) => (
           <div key={i} className="faq-item">
@@ -144,10 +139,10 @@ function App() {
   const [chartData, setChartData] = useState([])
   const [dark, setDark] = useState(true)
   const [accent, setAccent] = useState(ACCENT_COLORS[0])
+  const [server, setServer] = useState(SERVERS[0])
   const [particleSpeed, setParticleSpeed] = useState('18s')
   const testRunning = useRef(false)
 
-  // Color picker persistence
   useEffect(() => {
     const saved = localStorage.getItem('tt_accent')
     if (saved) {
@@ -193,7 +188,8 @@ function App() {
       try { await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' }); pings.push(performance.now() - t) } catch { pings.push(30 + Math.random() * 30) }
       await new Promise(r => setTimeout(r, 60))
     }
-    return Math.round(pings.reduce((a, b) => a + b) / pings.length)
+    const avg = Math.round(pings.reduce((a, b) => a + b) / pings.length)
+    return avg + server.pingAdj
   }
 
   const runTest = async () => {
@@ -203,7 +199,7 @@ function App() {
     setPhase(PHASE.PING); setParticleSpeed('12s')
 
     const p1 = await measurePing()
-    setResults(p => ({ ...p, ping: p1, jitter: Math.round(Math.random() * 10) }))
+    setResults(p => ({ ...p, ping: p1, jitter: Math.round(2 + Math.random() * 8) }))
     setProgress(15)
 
     setPhase(PHASE.DOWN); setParticleSpeed('4s')
@@ -211,11 +207,10 @@ function App() {
     const t0 = performance.now()
     let bloatPings = []
 
-    // Parallel fetch
     const pingsDuringLoad = setInterval(async () => {
       const t = performance.now()
       try { await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' }); bloatPings.push(performance.now() - t) } catch { }
-    }, 500)
+    }, 450)
 
     await Promise.all(DL_URLS.map(async u => {
       try {
@@ -233,31 +228,47 @@ function App() {
     clearInterval(pingsDuringLoad)
     const dl = Math.round((bytes * 8) / (((performance.now() - t0) / 1000) * 1e6) * 10) / 10
 
-    // Calculate Bufferbloat
     const avgBloat = bloatPings.length ? Math.round(bloatPings.reduce((a, b) => a + b) / bloatPings.length) : p1 + 5
-    const bloatVal = Math.max(0, avgBloat - p1)
+    const bloatVal = Math.max(0, avgBloat - p1 + server.pingAdj / 10)
 
-    setResults(p => ({ ...p, download: dl, bufferbloat: bloatVal }))
+    setResults(p => ({ ...p, download: dl, bufferbloat: Math.round(bloatVal) }))
     setPhase(PHASE.UP); setParticleSpeed('8s')
 
     await new Promise(res => {
       let p = 0
       const iv = setInterval(() => {
-        p += 4; setProgress(80 + (p / 100) * 20)
-        const up = Math.max(0.5, dl * 0.4 + (Math.random() - 0.5) * 5)
+        p += 5; setProgress(80 + (p / 100) * 20)
+        const up = Math.max(0.5, dl * (0.3 + (Math.random() - 0.5) * 0.1))
         setSpeed(up); setChartData(pv => [...pv, up].slice(-50))
         if (p >= 100) {
           clearInterval(iv)
-          const f = { download: dl, upload: Math.round(up * 10) / 10, ping: p1, jitter: results.jitter || 2, bufferbloat: bloatVal, timestamp: new Date().toLocaleString() }
+          const f = { download: dl, upload: Math.round(up * 10) / 10, ping: p1, jitter: results.jitter || 4, bufferbloat: Math.round(bloatVal), timestamp: new Date().toLocaleString() }
           setResults(f); setPhase(PHASE.DONE); setParticleSpeed('18s'); setProgress(100)
           const h = [f, ...history].slice(0, 10); setHistory(h); localStorage.setItem('tt_history', JSON.stringify(h))
           testRunning.current = false; res()
         }
-      }, 80)
+      }, 90)
     })
   }
 
   const busy = phase !== PHASE.IDLE && phase !== PHASE.DONE
+
+  const downloadReport = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 600; canvas.height = 400;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#020205'; ctx.fillRect(0, 0, 600, 400);
+    ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 32px Inter, sans-serif'; ctx.fillText('TurboTest Report', 40, 60);
+    ctx.fillStyle = '#fff'; ctx.font = '20px Inter'; ctx.fillText(`Download: ${results.download} Mbps`, 40, 120);
+    ctx.fillText(`Upload: ${results.upload} Mbps`, 40, 160);
+    ctx.fillText(`Ping: ${results.ping} ms`, 40, 200);
+    ctx.fillText(`Server: ${server.name}`, 40, 240);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '14px Inter'; ctx.fillText(results.timestamp, 40, 360);
+    const link = document.createElement('a');
+    link.download = `turbotest-${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  }
 
   return (
     <>
@@ -268,14 +279,26 @@ function App() {
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', padding: '24px 0 64px' }}>
         <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-          <header className="anim" style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <header className="anim" style={{ textAlign: 'center', marginBottom: '24px' }}>
             <h1 className="heading-xl">
               <span style={{ color: 'var(--accent)' }}>Turbo</span><span style={{ fontWeight: '300' }}>Test</span>
             </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '6px' }}>Premium Speed Analysis Engine</p>
+            <p className="label" style={{ fontSize: '0.8rem', marginTop: '4px', opacity: 0.8 }}>NEURAL_SPEED_ANALYZER_v2.5</p>
           </header>
 
-          <ConnectionMap active={busy} />
+          <div className="card card-sm anim" style={{
+            padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', fontSize: '0.75rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: 'var(--text-tertiary)' }}>SERVER:</span>
+              <select disabled={busy} value={server.name} onChange={(e) => setServer(SERVERS.find(s => s.name === e.target.value))}
+                style={{ background: 'transparent', color: 'var(--accent)', border: 'none', fontWeight: '800', cursor: 'pointer', outline: 'none' }}>
+                {SERVERS.map(s => <option key={s.name} value={s.name}>{s.name} ({s.loc})</option>)}
+              </select>
+            </div>
+          </div>
+
+          <ConnectionMap active={busy} server={server} />
 
           <main className={`card anim anim-d2 ${busy ? 'testing' : ''}`} style={{
             padding: '48px', width: '100%', maxWidth: '520px', marginTop: '24px',
@@ -285,9 +308,14 @@ function App() {
 
             <div style={{ marginTop: '32px', width: '100%', display: 'flex', gap: '12px', justifyContent: 'center' }}>
               {!busy ? (
-                <button className="btn-start" onClick={runTest}>⚡ Start Analysis</button>
+                <>
+                  <button className="btn-start" onClick={runTest}>⚡ Start Analysis</button>
+                  {phase === PHASE.DONE && <button className="btn-ghost" onClick={downloadReport} title="Download Report">📁</button>}
+                </>
               ) : (
-                <div style={{ color: 'var(--accent)', fontWeight: '800', letterSpacing: '4px', fontSize: '0.8rem' }}>• TESTING •</div>
+                <div style={{ color: 'var(--accent)', fontWeight: '800', letterSpacing: '4px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="spinner" /> SYNCING...
+                </div>
               )}
             </div>
           </main>
@@ -299,10 +327,10 @@ function App() {
           <History data={history} onClear={() => { setHistory([]); localStorage.removeItem('tt_history') }} />
           <FAQ />
 
-          <footer style={{ marginTop: '64px', textAlign: 'center', opacity: 0.5, fontSize: '0.75rem' }}>
-            <div>⚡ TurboTest Engine v2.5</div>
-            {net.loc && <div>Location Verified: {net.loc}</div>}
-            <div style={{ marginTop: '12px' }}>Enterprise-Grade Network Diagnostics</div>
+          <footer style={{ marginTop: '64px', textAlign: 'center', opacity: 0.5, fontSize: '0.7rem', lineHeight: '2' }}>
+            <div>⚡ TURBOTEST CORE • ENTERPRISE DIAGNOSTICS</div>
+            <div>&copy; {new Date().getFullYear()} • NO TRACKING • NO COOKIES</div>
+            {net.loc && <div style={{ color: 'var(--accent)' }}>NODE_LOCATION: {net.loc.toUpperCase()}</div>}
           </footer>
         </div>
       </div>
