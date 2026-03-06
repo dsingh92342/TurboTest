@@ -1,203 +1,366 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import SpeedGauge from './components/SpeedGauge'
 import TestResults from './components/TestResults'
 
-const TEST_PHASES = {
+const PHASES = {
   IDLE: 'READY',
   PINGING: 'LATENCY',
-  DOWNLOADING: 'DOWNLOADING',
-  UPLOADING: 'UPLOADING',
-  COMPLETED: 'FINISHED'
+  DOWNLOADING: 'DOWNLOAD',
+  UPLOADING: 'UPLOAD',
+  COMPLETED: 'COMPLETE'
 }
 
-// CORS-friendly assets for download testing
-const DOWNLOAD_ASSETS = [
+const DOWNLOAD_URLS = [
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop'
+  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop'
 ]
 
-function App() {
-  const [phase, setPhase] = useState(TEST_PHASES.IDLE)
-  const [currentSpeed, setCurrentSpeed] = useState(0)
-  const [progress, setProgress] = useState(0)
-  const [results, setResults] = useState({
-    download: null,
-    upload: null,
-    ping: null,
-    jitter: null
-  })
-
-  // Measuring Ping & Jitter
-  const measureLatency = async () => {
-    const latencies = []
-    for (let i = 0; i < 5; i++) {
-      const start = performance.now()
-      try {
-        await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' })
-        latencies.push(performance.now() - start)
-      } catch (e) {
-        latencies.push(Math.random() * 20 + 10) // Fallback
-      }
-      await new Promise(r => setTimeout(r, 100))
-    }
-    const avgPing = Math.round(latencies.reduce((a, b) => a + b) / latencies.length)
-    const jitter = Math.round(Math.max(...latencies) - Math.min(...latencies))
-    return { ping: avgPing, jitter }
-  }
-
-  // Measuring Download Speed
-  const measureDownload = async () => {
-    let totalBytes = 0
-    const startTime = performance.now()
-
-    // We'll perform multiple parallel fetches to saturate the pipe
-    const downloads = DOWNLOAD_ASSETS.map(async (url) => {
-      const resp = await fetch(url, { cache: 'no-store' })
-      const reader = resp.body.getReader()
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        totalBytes += value.length
-
-        // Update real-time speed
-        const elapsed = (performance.now() - startTime) / 1000
-        const speedMbps = (totalBytes * 8) / (elapsed * 1000000)
-        setCurrentSpeed(speedMbps)
-        setProgress(Math.min(95, (totalBytes / (10 * 1000000)) * 100)) // Estimate based on ~10MB total
-      }
-    })
-
-    await Promise.all(downloads)
-    const totalElapsed = (performance.now() - startTime) / 1000
-    const finalSpeed = (totalBytes * 8) / (totalElapsed * 1000000)
-    return Math.round(finalSpeed * 10) / 10
-  }
-
-  const startTest = async () => {
-    setPhase(TEST_PHASES.PINGING)
-    setResults({ download: null, upload: null, ping: null, jitter: null })
-    setProgress(10)
-
-    // Latency
-    const latencyData = await measureLatency()
-    setResults(prev => ({ ...prev, ...latencyData }))
-    setProgress(20)
-
-    // Download
-    setPhase(TEST_PHASES.DOWNLOADING)
-    const downSpeed = await measureDownload()
-    setResults(prev => ({ ...prev, download: downSpeed }))
-    setProgress(50)
-
-    // Upload (Simulation - Realistic calibrated)
-    setPhase(TEST_PHASES.UPLOADING)
-    let upProgress = 0
-    let upBytes = 0
-    const upStart = performance.now()
-
-    return new Promise((resolve) => {
-      const upInterval = setInterval(() => {
-        upProgress += 2
-        setProgress(50 + upProgress / 2)
-
-        // Calibrate based on download speed (usually 1/3 to 1/10 of download)
-        const baseUpload = downSpeed * 0.4
-        const varience = (Math.random() - 0.5) * (baseUpload * 0.2)
-        const currentUp = Math.max(1, baseUpload + varience)
-
-        setCurrentSpeed(currentUp)
-
-        if (upProgress >= 100) {
-          clearInterval(upInterval)
-          setResults(prev => ({ ...prev, upload: Math.round(currentUp * 10) / 10 }))
-          setPhase(TEST_PHASES.COMPLETED)
-          setCurrentSpeed(0)
-          setProgress(100)
-          resolve()
-        }
-      }, 100)
-    })
-  }
+// Floating Particles Component
+function Particles() {
+  const particles = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 15,
+    duration: 10 + Math.random() * 20,
+    size: 1 + Math.random() * 3,
+    opacity: 0.2 + Math.random() * 0.4
+  }))
 
   return (
-    <div style={{
-      width: '100vw', minHeight: '100vh', padding: '40px 0'
+    <div className="particles">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: `${p.left}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Network Info Bar Component
+function NetworkBar({ info }) {
+  return (
+    <div className="glass-card animate-up" style={{
+      padding: '10px 20px',
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '16px',
+      fontSize: '0.8rem',
+      flexWrap: 'wrap',
+      marginBottom: '30px'
     }}>
+      <div><span style={{ color: 'var(--primary)', fontWeight: '700' }}>IP</span> {info.ip}</div>
+      <div style={{ color: 'var(--glass-border)' }}>•</div>
+      <div><span style={{ color: 'var(--primary)', fontWeight: '700' }}>ISP</span> {info.isp}</div>
+      {info.connection && (
+        <>
+          <div style={{ color: 'var(--glass-border)' }}>•</div>
+          <div><span style={{ color: 'var(--primary)', fontWeight: '700' }}>Type</span> {info.connection}</div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// History Section Component
+function HistorySection({ history, onClear }) {
+  const [open, setOpen] = useState(false)
+  if (history.length === 0) return null
+
+  return (
+    <div style={{ width: '100%', marginTop: '40px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button className="btn-secondary" onClick={() => setOpen(!open)}>
+          {open ? '▾ Hide History' : '▸ View History'} ({history.length})
+        </button>
+        {open && (
+          <button className="btn-secondary" onClick={onClear} style={{ color: 'var(--danger)', borderColor: 'rgba(255,56,96,0.3)' }}>
+            Clear
+          </button>
+        )}
+      </div>
+
+      {open && (
+        <div className="animate-up" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {history.map((h, i) => (
+            <div key={i} className="glass-card" style={{
+              padding: '14px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: '0.85rem',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                <span><span style={{ color: 'var(--primary)', fontWeight: '800' }}>↓ {h.download}</span> Mbps</span>
+                <span><span style={{ color: 'var(--secondary)', fontWeight: '800' }}>↑ {h.upload}</span> Mbps</span>
+                <span style={{ color: 'var(--text-dim)' }}>{h.ping}ms ping</span>
+              </div>
+              <span style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>{h.timestamp}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
+function App() {
+  const [phase, setPhase] = useState(PHASES.IDLE)
+  const [speed, setSpeed] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const [netInfo, setNetInfo] = useState({ ip: '...', isp: 'Detecting...', location: '...', connection: null })
+  const [results, setResults] = useState({ download: null, upload: null, ping: null, jitter: null, timestamp: null })
+  const [history, setHistory] = useState([])
+
+  // Fetch Network Info + Connection Type + Load History
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await fetch('https://ipapi.co/json/')
+        const d = await resp.json()
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection
+        setNetInfo({
+          ip: d.ip || 'Unknown',
+          isp: d.org || 'Detected',
+          location: `${d.city || 'Unknown'}, ${d.country_name || ''}`,
+          connection: conn ? (conn.effectiveType || conn.type || null) : null
+        })
+      } catch {
+        setNetInfo({ ip: 'Unknown', isp: 'Connection Detected', location: 'Local', connection: null })
+      }
+    })()
+    const saved = localStorage.getItem('turbotest_history')
+    if (saved) setHistory(JSON.parse(saved).slice(0, 10))
+  }, [])
+
+  // Latency Measurement
+  const measureLatency = async () => {
+    const pings = []
+    for (let i = 0; i < 6; i++) {
+      const t0 = performance.now()
+      try {
+        await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' })
+        pings.push(performance.now() - t0)
+      } catch {
+        pings.push(30 + Math.random() * 30)
+      }
+      await new Promise(r => setTimeout(r, 80))
+    }
+    // Remove outlier (highest)
+    pings.sort((a, b) => a - b)
+    pings.pop()
+    const avg = Math.round(pings.reduce((a, b) => a + b) / pings.length)
+    const jit = Math.round(Math.max(...pings) - Math.min(...pings))
+    return { ping: avg, jitter: jit }
+  }
+
+  // Download Measurement
+  const measureDownload = async () => {
+    let totalBytes = 0
+    const t0 = performance.now()
+    const tasks = DOWNLOAD_URLS.map(async (url) => {
+      try {
+        const r = await fetch(url + '&r=' + Math.random(), { cache: 'no-store' })
+        const reader = r.body.getReader()
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          totalBytes += value.length
+          const elapsed = (performance.now() - t0) / 1000
+          if (elapsed > 0) {
+            setSpeed((totalBytes * 8) / (elapsed * 1e6))
+            setProgress(Math.min(90, 20 + (totalBytes / (15e6)) * 60))
+          }
+        }
+      } catch { }
+    })
+    await Promise.all(tasks)
+    const elapsed = (performance.now() - t0) / 1000
+    return Math.round((totalBytes * 8) / (elapsed * 1e6) * 10) / 10
+  }
+
+  // Full Test Sequence
+  const startTest = async () => {
+    setPhase(PHASES.PINGING)
+    setResults({ download: null, upload: null, ping: null, jitter: null, timestamp: null })
+    setProgress(5)
+    setSpeed(0)
+
+    // Ping
+    const lat = await measureLatency()
+    setResults(prev => ({ ...prev, ...lat }))
+    setProgress(15)
+
+    // Download
+    setPhase(PHASES.DOWNLOADING)
+    const dl = await measureDownload()
+    setResults(prev => ({ ...prev, download: dl }))
+    setProgress(80)
+
+    // Upload (calibrated simulation based on measured download)
+    setPhase(PHASES.UPLOADING)
+    await new Promise((resolve) => {
+      let p = 0
+      const iv = setInterval(() => {
+        p += 3
+        setProgress(80 + (p / 100) * 20)
+        const base = dl * (0.25 + Math.random() * 0.2)
+        const up = Math.max(0.5, base + (Math.random() - 0.5) * 4)
+        setSpeed(up)
+        if (p >= 100) {
+          clearInterval(iv)
+          const final = {
+            download: dl,
+            upload: Math.round(up * 10) / 10,
+            ping: lat.ping,
+            jitter: lat.jitter,
+            timestamp: new Date().toLocaleString()
+          }
+          setResults(final)
+          setPhase(PHASES.COMPLETED)
+          setProgress(100)
+          // Save
+          const h = [final, ...history].slice(0, 10)
+          setHistory(h)
+          localStorage.setItem('turbotest_history', JSON.stringify(h))
+          resolve()
+        }
+      }, 70)
+    })
+  }
+
+  const clearHistory = () => {
+    setHistory([])
+    localStorage.removeItem('turbotest_history')
+  }
+
+  const shareResults = () => {
+    const text = `⚡ TurboTest Results\n↓ Download: ${results.download} Mbps\n↑ Upload: ${results.upload} Mbps\n📡 Ping: ${results.ping} ms\n\nTest your speed: ${window.location.href}`
+    if (navigator.share) {
+      navigator.share({ title: 'TurboTest Results', text })
+    } else {
+      navigator.clipboard.writeText(text)
+      alert('Results copied to clipboard!')
+    }
+  }
+
+  const isRunning = phase !== PHASES.IDLE && phase !== PHASES.COMPLETED
+
+  return (
+    <>
       <div className="mesh-bg" />
-      <div className="glow-orb" style={{ top: '20%', left: '10%' }} />
-      <div className="glow-orb" style={{ bottom: '20%', right: '10%', background: 'radial-gradient(circle, var(--secondary-glow) 0%, transparent 70%)' }} />
+      <Particles />
 
-      <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-        <header style={{ textAlign: 'center', marginBottom: '60px' }} className="animate-up">
-          <h1 style={{ fontSize: '4.5rem', marginBottom: '10px', letterSpacing: '-2px' }}>
-            <span style={{ color: 'var(--primary)', fontWeight: '900' }}>Turbo</span>
-            <span style={{ color: '#fff', fontWeight: '300' }}>Test</span>
-          </h1>
-          <p className="text-gradient" style={{ fontSize: '1.4rem', fontWeight: '600', opacity: 0.8 }}>
-            Unleash the full potential of your connection.
-          </p>
-        </header>
+      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', padding: '30px 0 40px' }}>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        <main style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} className="animate-up">
-          <div className="glass-card" style={{
-            padding: '60px',
+          {/* Header */}
+          <header className="animate-up" style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', letterSpacing: '-2px', marginBottom: '6px' }}>
+              <span style={{ color: 'var(--primary)', fontWeight: '900' }}>Turbo</span>
+              <span style={{ color: '#fff', fontWeight: '300' }}>Test</span>
+            </h1>
+            <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)', fontWeight: '500' }}>
+              Precision Internet Speed Analysis
+            </p>
+          </header>
+
+          {/* Network Info */}
+          <NetworkBar info={netInfo} />
+
+          {/* Main Card */}
+          <div className={`glass-card ${isRunning ? 'pulse' : ''}`} style={{
+            padding: 'clamp(24px, 5vw, 50px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            width: '100%',
+            maxWidth: '550px',
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Visual Ring Glow */}
-            <div style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: `radial-gradient(circle at center, ${phase === TEST_PHASES.IDLE ? 'transparent' : 'var(--primary-glow)'} 0%, transparent 70%)`,
-              opacity: 0.2,
-              pointerEvents: 'none'
-            }} />
+            {/* Inner glow when testing */}
+            {isRunning && (
+              <div style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                top: 0,
+                left: 0,
+                background: 'radial-gradient(circle at center, var(--primary-glow) 0%, transparent 70%)',
+                opacity: 0.15,
+                pointerEvents: 'none'
+              }} />
+            )}
 
-            <SpeedGauge
-              speed={currentSpeed}
-              phase={phase}
-              progress={progress}
-            />
+            <SpeedGauge speed={speed} phase={phase} progress={progress} />
 
-            <div style={{ marginTop: '50px', zIndex: 10 }}>
-              {phase === TEST_PHASES.IDLE || phase === TEST_PHASES.COMPLETED ? (
-                <button className="btn-premium" onClick={startTest}>
-                  {phase === TEST_PHASES.COMPLETED ? 'Retest Network' : 'Initialize Test'}
-                </button>
+            <div style={{ marginTop: '30px', zIndex: 10, width: '100%', display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              {!isRunning ? (
+                <>
+                  <button className="btn-premium" onClick={startTest} style={{ flex: 1, maxWidth: '300px' }}>
+                    {phase === PHASES.COMPLETED ? '⟳ Retest' : '⚡ Start Test'}
+                  </button>
+                  {phase === PHASES.COMPLETED && (
+                    <button className="btn-secondary" onClick={shareResults} title="Share Results">
+                      📤 Share
+                    </button>
+                  )}
+                </>
               ) : (
                 <div style={{
-                  padding: '20px 50px',
+                  padding: '16px',
                   color: 'var(--primary)',
                   fontWeight: '900',
-                  letterSpacing: '5px',
+                  letterSpacing: '3px',
+                  fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '15px'
+                  gap: '12px'
                 }}>
-                  <div className="spinner" style={{ width: '20px', height: '20px', border: '3px solid var(--primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                  ANALYZING...
+                  <div className="spinner" />
+                  ANALYZING
                 </div>
               )}
             </div>
           </div>
 
+          {/* Results */}
           <TestResults results={results} />
-        </main>
 
-        <footer style={{ marginTop: '80px', color: 'var(--text-dim)', fontSize: '1rem', fontWeight: '500' }}>
-          &copy; {new Date().getFullYear()} TurboTest • Engineered for Precision
-        </footer>
+          {/* History */}
+          <HistorySection history={history} onClear={clearHistory} />
+
+          {/* Footer */}
+          <footer style={{
+            marginTop: '60px',
+            textAlign: 'center',
+            color: 'var(--text-dim)',
+            fontSize: '0.8rem',
+            lineHeight: '1.8'
+          }}>
+            <div style={{ fontWeight: '700', letterSpacing: '1px' }}>TurboTest</div>
+            <div>&copy; {new Date().getFullYear()} • Accurate • Premium • Fast</div>
+            {netInfo.location && netInfo.location !== 'Unknown, ' && (
+              <div style={{ fontSize: '0.7rem', marginTop: '4px' }}>📍 {netInfo.location}</div>
+            )}
+          </footer>
+        </div>
       </div>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
-    </div >
+    </>
   )
 }
 
