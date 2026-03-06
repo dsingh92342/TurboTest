@@ -1,117 +1,183 @@
-# ⚡ TurboTest - Ultimate Internet Speed Test
+<div align="center">
 
-A premium, real-time internet speed testing web application built with React and Vite. Measure your download speed, upload speed, ping, and jitter with a stunning modern interface.
+# ⚡ TurboTest
 
-![TurboTest](https://img.shields.io/badge/TurboTest-v1.0-cyan?style=for-the-badge)
-![React](https://img.shields.io/badge/React-v19-blue?style=for-the-badge&logo=react)
-![Vite](https://img.shields.io/badge/Vite-v7-purple?style=for-the-badge&logo=vite)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+### Free & Accurate Internet Speed Test
 
-## ✨ Features
+**Measure your download speed, upload speed, ping and jitter instantly.**
+No ads. No signup. No data collected.
 
-### 🎯 Core
-- **Real-time Download Speed** — Measures actual bandwidth using parallel CDN fetches
-- **Upload Speed** — Calibrated measurement based on your connection profile
-- **Ping & Jitter** — Multi-sample latency measurement with outlier removal
-- **ISP Detection** — Automatically detects your ISP and IP address
-- **Connection Type** — Detects 4G/WiFi/Ethernet via the Network Information API
-
-### 🎨 Premium UI
-- **Mesh Gradient Backgrounds** — Immersive, dynamic color gradients
-- **Floating Particles** — Subtle animated particles for visual depth
-- **Glassmorphism Cards** — Frosted glass UI elements with glow effects
-- **Professional Speed Gauge** — SVG-based gauge with tick marks and gradient progress ring
-- **Micro-animations** — Smooth transitions, hover effects, and pulse animations
-- **Fully Responsive** — Optimized for desktop, tablet, and mobile devices
-
-### 📊 Intelligence
-- **Speed Rating** — Rates your connection as Excellent/Great/Good/Average/Slow
-- **Activity Suitability** — Shows what your speed supports (4K streaming, gaming, etc.)
-- **Speed Comparison Bars** — Visual progress bars for each metric
-- **Test History** — Saves up to 10 previous results in local storage
-- **Share Results** — Share via Web Share API or copy to clipboard
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ and npm
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/TurboTest.git
-cd TurboTest
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-The production-ready files will be in the `dist/` directory.
-
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| **React 19** | UI Framework |
-| **Vite 7** | Build Tool & Dev Server |
-| **Vanilla CSS** | Styling (no utility frameworks) |
-| **Performance API** | High-precision timing |
-| **ipapi.co** | ISP & geolocation detection |
-| **Web Share API** | Native sharing on mobile |
-| **LocalStorage** | Persistent test history |
-
-## 📱 Mobile Support
-
-TurboTest is fully responsive and optimized for all screen sizes:
-- **Desktop** (1200px+) — Full-width layout with all features
-- **Tablet** (768px) — Adjusted spacing and card sizing
-- **Mobile** (480px) — Stacked layout with fluid typography
-
-## 🏗️ Project Structure
-
-```
-TurboTest/
-├── index.html                 # Entry point with SEO meta tags
-├── src/
-│   ├── main.jsx              # React entry
-│   ├── App.jsx               # Main app (logic, state, layout)
-│   ├── index.css             # Global design system
-│   └── components/
-│       ├── SpeedGauge.jsx    # SVG speed gauge
-│       └── TestResults.jsx   # Results, ratings & suitability
-├── package.json
-└── vite.config.js
-```
-
-## 📝 How It Works
-
-1. **Latency Test** — Sends 6 tiny requests to a reliable server, removes the highest outlier, and averages the rest for accurate ping & jitter
-2. **Download Test** — Fetches 4 large images in parallel from a high-speed CDN, measuring bytes received over time using the Streams API
-3. **Upload Test** — Runs a calibrated simulation based on the measured download speed and connection latency
-4. **Results** — Displays metrics with speed ratings, comparison bars, and activity suitability analysis
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
-
-## 📄 License
-
-This project is licensed under the MIT License.
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-TurboTest-00e5ff?style=for-the-badge)](https://dsingh92342.github.io/TurboTest/)
+[![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite)](https://vite.dev)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
+[![PWA](https://img.shields.io/badge/PWA-Ready-a855f7?style=flat-square)](https://web.dev/progressive-web-apps/)
 
 ---
 
-<p align="center">
-  Built with ⚡ by <strong>TurboTest</strong>
-</p>
+[**Try it now →**](https://dsingh92342.github.io/TurboTest/)
+
+</div>
+
+## ✨ Features
+
+### 🎯 Speed Testing
+- **Real-time Download Measurement** — Parallel CDN fetches with Streams API for accurate bandwidth detection
+- **Upload Speed** — Calibrated measurement based on your connection profile
+- **Ping & Jitter** — 8-sample latency measurement with outlier removal (removes highest & lowest)
+- **Live Speed Chart** — Canvas-based real-time visualization of speed fluctuations during the test
+
+### 📡 Network Intelligence
+- **ISP Detection** — Automatically identifies your Internet Service Provider via ipapi.co
+- **IP Address Display** — Shows your public IP address
+- **Connection Type** — Detects WiFi, 4G, 3G, etc. via the Network Information API
+- **Connection Stability Score** — Calculates stability percentage from ping consistency and jitter ratio
+
+### 🏆 Analysis
+- **Speed Rating** — Rates your connection: Excellent 🚀 / Great ⚡ / Good / Average ⚠ / Slow 🐌
+- **Activity Suitability** — Shows compatibility with HD streaming, 4K, gaming, cloud gaming, video calls
+- **Smart Tips** — Contextual improvement suggestions based on your actual results
+- **Speed Comparison Bars** — Visual progress bars showing relative performance
+
+### 💾 Data & Sharing
+- **Test History** — Saves up to 10 results locally (localStorage, no server)
+- **Share Results** — Web Share API on mobile, clipboard fallback on desktop
+- **Clear History** — One-click history management
+
+### 🎨 Premium Design
+- **Dark & Light Themes** — Toggle with persistence (saved in localStorage)
+- **Floating Particles** — Animated particle system for visual depth
+- **Ambient Gradients** — Drifting background color blobs
+- **Glassmorphism** — Frosted glass cards with backdrop blur
+- **Professional Gauge** — SVG-based with tick marks, gradient ring, and glow effects
+- **Micro-animations** — Smooth transitions, pulse glow during testing, slide-in elements
+- **Fully Responsive** — Optimized for desktop, tablet, and mobile (fluid typography with `clamp()`)
+
+### 🔍 SEO & AEO
+- **Schema.org Structured Data** — WebApplication, FAQPage (6 questions), HowTo schemas
+- **Full Meta Tags** — Title, description, keywords, canonical URL, Open Graph, Twitter Cards
+- **Semantic HTML5** — `<header>`, `<main>`, `<section>`, `<article>`, `<footer>`, `<time>`, `<nav>`
+- **PWA Manifest** — Installable as a standalone app
+- **robots.txt & sitemap.xml** — Proper crawler guidance
+
+### ♿ Accessibility
+- **ARIA Labels** — Every interactive element and section has descriptive ARIA attributes
+- **Keyboard Navigation** — Press `Space` to start test, `Enter`/`Space` for FAQ items
+- **Screen Reader Support** — `role="meter"` on gauge, `role="status"` with `aria-live="polite"`
+- **Semantic Structure** — Proper heading hierarchy (h1 → h2 → h3)
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Clone
+git clone https://github.com/dsingh92342/TurboTest.git
+cd TurboTest
+
+# Install
+npm install
+
+# Run locally
+npm run dev
+```
+
+Open **http://localhost:5173** in your browser.
+
+---
+
+## 📦 Deploy to GitHub Pages
+
+```bash
+npm run deploy
+```
+
+This builds the project and pushes the `dist/` folder to the `gh-pages` branch automatically.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| **Framework** | React 19 | Component architecture, hooks for state management |
+| **Build** | Vite 7 | Lightning-fast HMR and optimized production builds |
+| **Styling** | Vanilla CSS | Full control, no framework overhead, CSS variables for theming |
+| **Charts** | Canvas API | Performant real-time speed visualization |
+| **Gauge** | SVG | Resolution-independent, animatable speed gauge |
+| **Network** | Fetch + Streams API | Real-time byte-level download tracking |
+| **ISP Data** | ipapi.co | Free geolocation and ISP detection |
+| **PWA** | Web App Manifest | Installable standalone experience |
+| **Deploy** | gh-pages | One-command deployment to GitHub Pages |
+
+---
+
+## 📁 Project Structure
+
+```
+TurboTest/
+├── public/
+│   ├── manifest.json          # PWA manifest
+│   ├── robots.txt             # Crawler rules
+│   └── sitemap.xml            # XML sitemap
+├── src/
+│   ├── main.jsx               # React entry point
+│   ├── App.jsx                # Main app (state, logic, layout)
+│   ├── index.css              # Design system + themes
+│   └── components/
+│       ├── SpeedGauge.jsx     # SVG speed gauge with ticks
+│       ├── SpeedChart.jsx     # Canvas real-time speed graph
+│       ├── SpeedTips.jsx      # Smart tips + stability score
+│       └── TestResults.jsx    # Results grid + activity suitability
+├── index.html                 # SEO meta + Schema.org structured data
+├── vite.config.js             # Vite config with GitHub Pages base
+└── package.json               # Scripts including deploy
+```
+
+---
+
+## ⚙️ How It Works
+
+```
+┌─────────────┐   ┌──────────────┐   ┌─────────────┐   ┌──────────────┐
+│  1. LATENCY  │──▶│  2. DOWNLOAD  │──▶│  3. UPLOAD   │──▶│  4. RESULTS  │
+│  8 pings     │   │  4 parallel   │   │  Calibrated  │   │  Rating      │
+│  Remove top  │   │  CDN fetches  │   │  simulation  │   │  Tips        │
+│  & bottom    │   │  Streams API  │   │  Based on DL │   │  Stability   │
+└─────────────┘   └──────────────┘   └─────────────┘   └──────────────┘
+```
+
+1. **Latency** — 8 requests to Google's favicon, sorted, highest & lowest removed, averaged
+2. **Download** — 4 large images fetched in parallel from Unsplash CDN, bytes tracked via Streams API
+3. **Upload** — Calibrated simulation using measured download speed and connection characteristics
+4. **Analysis** — Speed rating, activity suitability check, stability score, and personalized tips
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+```bash
+# Fork the repo, then:
+git checkout -b feature/amazing-feature
+git commit -m 'Add amazing feature'
+git push origin feature/amazing-feature
+# Open a Pull Request
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**Built with ⚡ by TurboTest**
+
+[Live Demo](https://dsingh92342.github.io/TurboTest/) · [Report Bug](https://github.com/dsingh92342/TurboTest/issues) · [Request Feature](https://github.com/dsingh92342/TurboTest/issues)
+
+</div>

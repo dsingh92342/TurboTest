@@ -1,0 +1,21 @@
+{
+    "name": "TurboTest - Internet Speed Test",
+    "short_name": "TurboTest",
+    "description": "Free & accurate internet speed test. Measure download, upload, ping and jitter instantly.",
+    "start_url": "/TurboTest/",
+    "display": "standalone",
+    "background_color": "#030014",
+    "theme_color": "#00e5ff",
+    "orientation": "portrait-primary",
+    "categories": [
+        "utilities",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

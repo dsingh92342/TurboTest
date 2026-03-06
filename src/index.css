@@ -464,3 +464,57 @@ button {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ===== LIGHT THEME ===== */
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --text: #1a1a2e;
+  --text-secondary: rgba(26, 26, 46, 0.6);
+  --text-tertiary: rgba(26, 26, 46, 0.35);
+  --cyan: #0891b2;
+  --cyan-glow: rgba(8, 145, 178, 0.2);
+  --purple: #7c3aed;
+  --purple-glow: rgba(124, 58, 237, 0.2);
+  --green: #16a34a;
+  --yellow: #ca8a04;
+  --red: #dc2626;
+  --pink: #db2777;
+}
+
+[data-theme="light"] body {
+  background: var(--bg);
+}
+
+[data-theme="light"] .card {
+  background: var(--bg-card);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .ambient::before,
+[data-theme="light"] .ambient::after {
+  opacity: 0.4;
+}
+
+[data-theme="light"] .dot {
+  background: var(--cyan);
+  opacity: 0;
+}
+
+[data-theme="light"] .btn-start {
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.25);
+}
+
+[data-theme="light"] .faq-q {
+  color: var(--text);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
