@@ -121,13 +121,14 @@ function App() {
   }
 
   return (
-    <div style={{ width: '100vw', minHeight: '100vh', padding: '40px 0', z- index: 1
-}}>
+    <div style={{
+      width: '100vw', minHeight: '100vh', padding: '40px 0'
+    }}>
       <div className="mesh-bg" />
       <div className="glow-orb" style={{ top: '20%', left: '10%' }} />
       <div className="glow-orb" style={{ bottom: '20%', right: '10%', background: 'radial-gradient(circle, var(--secondary-glow) 0%, transparent 70%)' }} />
 
-      <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <header style={{ textAlign: 'center', marginBottom: '60px' }} className="animate-up">
           <h1 style={{ fontSize: '4.5rem', marginBottom: '10px', letterSpacing: '-2px' }}>
             <span style={{ color: 'var(--primary)', fontWeight: '900' }}>Turbo</span>
@@ -139,10 +140,10 @@ function App() {
         </header>
 
         <main style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} className="animate-up">
-          <div className="glass-card" style={{ 
-            padding: '60px', 
-            display: 'flex', 
-            flexDirection: 'column', 
+          <div className="glass-card" style={{
+            padding: '60px',
+            display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             position: 'relative',
             overflow: 'hidden'
@@ -157,22 +158,22 @@ function App() {
               pointerEvents: 'none'
             }} />
 
-            <SpeedGauge 
-              speed={currentSpeed} 
-              phase={phase} 
+            <SpeedGauge
+              speed={currentSpeed}
+              phase={phase}
               progress={progress}
             />
-            
+
             <div style={{ marginTop: '50px', zIndex: 10 }}>
               {phase === TEST_PHASES.IDLE || phase === TEST_PHASES.COMPLETED ? (
                 <button className="btn-premium" onClick={startTest}>
                   {phase === TEST_PHASES.COMPLETED ? 'Retest Network' : 'Initialize Test'}
                 </button>
               ) : (
-                <div style={{ 
-                  padding: '20px 50px', 
-                  color: 'var(--primary)', 
-                  fontWeight: '900', 
+                <div style={{
+                  padding: '20px 50px',
+                  color: 'var(--primary)',
+                  fontWeight: '900',
                   letterSpacing: '5px',
                   display: 'flex',
                   alignItems: 'center',

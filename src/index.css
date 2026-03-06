@@ -122,6 +122,7 @@ body {
 
 .text-gradient {
   background: linear-gradient(to right, #ffffff, #a5a5a5);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -169,4 +170,19 @@ body {
 
 .animate-up {
   animation: slideUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
