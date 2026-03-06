@@ -6,6 +6,14 @@
   --cyan-glow: rgba(0, 229, 255, 0.35);
   --purple: #a855f7;
   --purple-glow: rgba(168, 85, 247, 0.35);
+  --lime: #84cc16;
+  --lime-glow: rgba(132, 204, 22, 0.35);
+  --orange: #f97316;
+  --orange-glow: rgba(249, 115, 22, 0.35);
+
+  --accent: var(--cyan);
+  --accent-glow: var(--cyan-glow);
+
   --green: #22c55e;
   --yellow: #eab308;
   --red: #ef4444;
@@ -125,10 +133,10 @@ button {
   position: absolute;
   width: 2px;
   height: 2px;
-  background: var(--cyan);
+  background: var(--accent);
   border-radius: 50%;
   opacity: 0;
-  animation: rise linear infinite;
+  animation: rise var(--particle-speed, 18s) linear infinite;
 }
 
 @keyframes rise {
@@ -171,7 +179,7 @@ button {
 
 /* ===== BUTTONS ===== */
 .btn-start {
-  background: linear-gradient(135deg, var(--cyan) 0%, #6366f1 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
   color: #000;
   border: none;
   padding: 18px 0;
@@ -186,7 +194,7 @@ button {
   position: relative;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 0 24px var(--cyan-glow);
+  box-shadow: 0 0 24px var(--accent-glow);
 }
 
 .btn-start::after {
@@ -306,10 +314,37 @@ button {
   margin-top: 10px;
 }
 
+kbd {
+  background: var(--bg-card);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-family: var(--font);
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  animation: pulse-kbd 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes pulse-kbd {
+
+  0%,
+  100% {
+    border-color: var(--border);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  50% {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+}
+
 .bar-fill {
   height: 100%;
   border-radius: 10px;
-  transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 0 5px var(--accent-glow));
 }
 
 /* ===== SPINNER ===== */
@@ -474,10 +509,16 @@ button {
   --text: #1a1a2e;
   --text-secondary: rgba(26, 26, 46, 0.6);
   --text-tertiary: rgba(26, 26, 46, 0.35);
+  --accent: #0891b2;
+  --accent-glow: rgba(8, 145, 178, 0.2);
   --cyan: #0891b2;
   --cyan-glow: rgba(8, 145, 178, 0.2);
   --purple: #7c3aed;
   --purple-glow: rgba(124, 58, 237, 0.2);
+  --lime: #65a30d;
+  --lime-glow: rgba(101, 163, 13, 0.2);
+  --orange: #ea580c;
+  --orange-glow: rgba(234, 88, 12, 0.2);
   --green: #16a34a;
   --yellow: #ca8a04;
   --red: #dc2626;
